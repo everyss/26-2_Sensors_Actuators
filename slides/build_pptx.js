@@ -171,24 +171,22 @@ const takeaway = (s, text, y) => {
 // 8 system
 {
   const s = base(BG, "연구 방법 1", "단일 클럭 동기화 기반 측정 시스템");
-  const box = (x, y, w, h, t, sub, o = {}) => { card(s, x, y, w, h, o); T(s, t, { x: x + 0.2, y: y + 0.12, w: w - 0.4, h: 0.4, fontSize: 16, bold: true, color: NAVY }); if (sub) T(s, sub, { x: x + 0.2, y: y + 0.55, w: w - 0.4, h: h - 0.6, fontSize: 13, color: MUTE }); };
-  box(0.7, 1.85, 3.6, 1.0, "IMU · ICM-42688-P", "정강이 각속도 · SPI 1 kHz");
-  box(0.7, 3.0, 3.6, 1.0, "고속 카메라 + 동기 LED", "240 fps · 보행 이벤트 참값");
-  box(0.7, 4.15, 3.6, 1.0, "자기 엔코더 · AS5600", "벤치 회전축 → 각도 참값");
-  [2.35, 3.5, 4.65].forEach((y) => s.addShape(pres.shapes.LINE, { x: 4.35, y, w: 0.7, h: 0, line: { color: "8A939F", width: 2, endArrowType: "triangle" } }));
-  card(s, 5.1, 1.85, 4.0, 3.3, { fill: PEACH, line: ACC, lw: 2.5 });
-  T(s, "STM32 Nucleo-F446RE", { x: 5.35, y: 2.0, w: 3.5, h: 0.45, fontSize: 18, bold: true, color: NAVY });
-  T(s, "Cortex-M4F 180 MHz · FPU", { x: 5.35, y: 2.5, w: 3.5, h: 0.3, fontSize: 12, color: ACCD, fontFace: M });
-  T(s, ["1 µs 타이머 공통 타임스탬프", "실시간 인과 · 고정지연 필터", "raw + 필터 출력 동시 로깅"].map((t, i, a) => ({ text: t, options: { bullet: true, breakLine: i < a.length - 1 } })), { x: 5.35, y: 3.0, w: 3.55, h: 2.0, fontSize: 15, paraSpaceAfter: 8 });
-  s.addShape(pres.shapes.LINE, { x: 9.15, y: 3.5, w: 0.8, h: 0, line: { color: "8A939F", width: 2, endArrowType: "triangle" } });
-  T(s, "UART", { x: 9.15, y: 3.15, w: 0.8, h: 0.3, fontSize: 12, color: MUTE, align: "center", fontFace: M });
-  box(10.0, 2.85, 2.63, 1.3, "PC", "비인과 필터 · 지표 · 통계");
-  box(0.7, 5.5, 4.4, 1.15, "Arduino Uno", "서보 구동 · 저사양 MCU 연산 비교");
-  s.addShape(pres.shapes.LINE, { x: 5.15, y: 6.07, w: 0.9, h: 0, line: { color: "8A939F", width: 2, endArrowType: "triangle" } });
-  T(s, "PWM", { x: 5.15, y: 5.72, w: 0.9, h: 0.3, fontSize: 12, color: MUTE, align: "center", fontFace: M });
-  box(6.1, 5.5, 3.0, 1.15, "MG996R 서보", "벤치 링크 구동");
-  s.addShape(pres.shapes.LINE, { x: 3.0, y: 5.5, w: 2.1, h: -0.35, flipV: false, line: { color: "8A939F", width: 1.5, dashType: "dash" } });
-  T(s, "단일 클럭 동기화 = ms 단위 지연 측정의 전제 조건", { x: 9.3, y: 5.6, w: 3.3, h: 1.0, fontSize: 16, bold: true, color: NAVY });
+  const box = (x, y, w, h, t, sub, o = {}) => { card(s, x, y, w, h, o); T(s, t, { x: x + 0.25, y: y + 0.15, w: w - 0.5, h: 0.45, fontSize: 18, bold: true, color: NAVY }); if (sub) T(s, sub, { x: x + 0.25, y: y + 0.65, w: w - 0.5, h: h - 0.7, fontSize: 14, color: MUTE }); };
+  const arr = (x, y, w) => s.addShape(pres.shapes.LINE, { x, y, w, h: 0, line: { color: "8A939F", width: 2, endArrowType: "triangle" } });
+  box(0.7, 1.95, 3.7, 1.15, "IMU · MPU-6050", "정강이 각속도 · I2C");
+  box(0.7, 3.3, 3.7, 1.15, "카메라 + 동기 LED", "100 Hz 촬영 · 보행 이벤트 참값");
+  arr(4.45, 2.52, 0.65); arr(4.45, 3.87, 0.65);
+  card(s, 5.15, 1.95, 3.9, 2.5, { fill: PEACH, line: ACC, lw: 2.5 });
+  T(s, "STM32", { x: 5.4, y: 2.1, w: 3.4, h: 0.5, fontSize: 22, bold: true, color: NAVY });
+  T(s, ["모든 센서를 같은 시계로 기록", "실시간 인과 · 고정지연 필터", "raw + 필터 출력 동시 저장"].map((t, i, a) => ({ text: t, options: { bullet: true, breakLine: i < a.length - 1 } })), { x: 5.4, y: 2.8, w: 3.5, h: 1.6, fontSize: 15, paraSpaceAfter: 8 });
+  arr(9.1, 3.2, 0.8);
+  T(s, "UART", { x: 9.1, y: 2.85, w: 0.8, h: 0.3, fontSize: 12, color: MUTE, align: "center", fontFace: M });
+  box(9.95, 2.6, 2.68, 1.3, "PC", "비인과 필터 · 분석");
+  box(0.7, 4.85, 4.4, 1.3, "Arduino", "서보 모터 구동 · 저사양 MCU 비교");
+  arr(5.15, 5.5, 1.0);
+  T(s, "PWM", { x: 5.15, y: 5.15, w: 1.0, h: 0.3, fontSize: 12, color: MUTE, align: "center", fontFace: M });
+  box(6.2, 4.85, 3.2, 1.3, "서보 모터", "벤치 링크 구동");
+  T(s, "단일 클럭 동기화 = ms 단위 지연 측정의 전제 조건", { x: 9.8, y: 4.9, w: 2.85, h: 1.2, fontSize: 16, bold: true, color: NAVY });
 }
 
 // 9 filters
@@ -218,8 +216,8 @@ const takeaway = (s, text, y) => {
 // 10 experiments
 {
   const s = base(BG, "연구 방법 3", "참값을 확보할 수 있는 세 가지 실험");
-  [["실험 1", "벤치 실험", "참값: AS5600 엔코더 각도", ["서보 구동 링크 (정강이 모형)", "사인파 · 보행 궤적 재생", "충돌 · 진동모터로 잡음 통제"]],
-   ["실험 2", "인체 보행 실험", "참값: 고속 영상 (240 fps)", ["3–5명 · 트레드밀 3속도 × 2분", "영상에서 HS/TO 프레임 판독 → 검출 시점 오차", "동기 LED로 영상–IMU 시간 정렬"]],
+  [["실험 1", "벤치 실험", "참값: 영상 (100 Hz)", ["서보 모터 구동 링크 (정강이 모형)", "사인파 · 보행 궤적 재생", "충돌 · 진동모터로 잡음 통제"]],
+   ["실험 2", "인체 보행 실험", "참값: 영상 (100 Hz)", ["3–5명 · 트레드밀 3속도 × 2분", "영상에서 HS/TO 프레임 판독 → 검출 시점 오차", "동기 LED로 영상–IMU 시간 정렬"]],
    ["실험 3", "임베디드 실험", "기준: PC 연산 결과", ["동일 raw를 MCU에 재생 (HIL)", "샘플당 연산 시간 · 메모리", "PC 출력과 수치 일치 (H1)"]]].forEach(([k, h, g, l], i) => {
     const x = 0.7 + i * 4.05;
     card(s, x, 1.95, 3.83, 4.6);
