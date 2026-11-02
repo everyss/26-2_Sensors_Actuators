@@ -1,18 +1,18 @@
 const pptxgen = require("pptxgenjs");
 const fs = require("fs");
 const S = "/tmp/claude-0/-home-user/2d881f96-9a89-58f2-99b0-73650f4069d7/scratchpad/";
-const notes = JSON.parse(fs.readFileSync(S + "pp_notes7.json", "utf8"));
+const notes = JSON.parse(fs.readFileSync(S + "pp_notes8.json", "utf8"));
 const OUT = "/home/user/26-2_Sensors_Actuators/slides/midterm_presentation.pptx";
 
 const F = "Malgun Gothic", M = "Courier New";
 const NAVY = "16202E", BG = "F7F6F2", BG2 = "ECEFF3", WHITE = "FDFCFA", ACC = "D9572B", ACCD = "B4471D",
   BLUE = "1F5FAD", TXT = "3D4756", MUTE = "646D7A", LINE = "CDD3DA", LBLUE = "2A6FC9", CREAM = "F3F1EA", PEACH = "FFF6F1", ORL = "F08A5D";
-const TOTAL = 7;
+const TOTAL = 8;
 const DEFAULT_FOOT = "MPU-6050 자이로 신호에 고정지연 필터를 적용한 저지연 보행 이벤트 검출 · 중간발표";
 
 const pres = new pptxgen();
 pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5 in
-pres.title = "MPU-6050 자이로 신호에 고정지연 필터를 적용한 저지연 보행 이벤트 검출 (중간발표)";
+pres.title = "IMU 신호에 고정지연 필터를 적용한 저지연 보행 이벤트 검출 (중간발표)";
 let n = 0;
 
 const T = (s, text, o) => s.addText(text, Object.assign({ fontFace: F, fontSize: 16, color: TXT, margin: 0, valign: "top", isTextBox: true }, o));
@@ -38,20 +38,16 @@ function slide(bg, kicker, title, foot, dark) {
   return s;
 }
 
-// 1 제목
+// 1 제목과 저자
 {
-  const s = slide(NAVY, "", "", "센서 및 액추에이터 · 2026-2", true);
-  T(s, "센서 및 액추에이터 · 2026-2", { x: 0.9, y: 0.7, w: 11, h: 0.4, fontSize: 16, color: "AEB6C2" });
-  T(s, "MPU-6050 자이로 신호에\n고정지연 필터를 적용한\n저지연 보행 이벤트 검출", { x: 0.9, y: 1.6, w: 11.5, h: 2.7, fontSize: 40, bold: true, color: CREAM });
-  T(s, "실시간 · 고정지연 · 사후 필터의 정확도–지연 비교", { x: 0.9, y: 4.35, w: 11.5, h: 0.5, fontSize: 22, color: ORL });
-  T(s, "(중간발표, [발표일])", { x: 0.9, y: 4.95, w: 11.5, h: 0.4, fontSize: 16, color: CREAM });
-  T(s, "[1저자] · [2저자] · [3저자]", { x: 0.9, y: 5.9, w: 8, h: 0.4, fontSize: 18, bold: true, color: CREAM });
-  T(s, "[소속 연구실]", { x: 0.9, y: 6.35, w: 8, h: 0.35, fontSize: 14, color: "AEB6C2" });
+  const s = slide(NAVY, "", "", " ", true);
+  T(s, "IMU 신호에\n고정지연 필터를 적용한\n저지연 보행 이벤트 검출", { x: 0.9, y: 1.8, w: 11.5, h: 2.7, fontSize: 40, bold: true, color: CREAM });
+  T(s, "실시간 · 고정지연 · 사후 필터의 정확도–지연 비교", { x: 0.9, y: 4.6, w: 11.5, h: 0.5, fontSize: 22, color: ORL });
 }
 
 // 2 연구배경 (1장)
 {
-  const s = slide(BG, "연구배경", "보행 이벤트 검출용 필터는 정확도와 지연이 상충한다", "출처: Aminian et al., J. Biomech., 2002 · Winter, Biomechanics and Motor Control of Human Movement, 2009");
+  const s = slide(BG, "2. 연구 배경", "연구 배경: 필터는 정확도와 지연이 상충한다", "출처: Aminian et al., J. Biomech., 2002 · Winter, Biomechanics and Motor Control of Human Movement, 2009");
   [["HS(뒤꿈치 닿기) · TO(발끝 떼기)를 정강이 IMU(관성측정장치)로 검출 → 외골격 보조 타이밍", ACC],
    ["실시간 필터: 잡음 제거 대신 지연 발생 (10 Hz Butterworth ≈ 30 ms)", LBLUE],
    ["사후 필터: 지연 0, 그러나 측정 후에만 가능 → 실시간 불가", LBLUE]].forEach(([t, c], i) => {
@@ -69,7 +65,7 @@ function slide(bg, kicker, title, foot, dark) {
 
 // 3 연구목표
 {
-  const s = slide(BG2, "연구목표", "MPU-6050 자이로에 필터를 적용해, 늦지 않게 검출한다", "AAF = Anti-Aliasing Filter(앨리어싱 방지 필터) · 출처: Rauch et al., AIAA J., 1965 · Casiez et al., CHI 2012");
+  const s = slide(BG2, "3. 연구 목적", "연구 목적: IMU에 필터를 적용해 늦지 않게 검출한다", "AAF = Anti-Aliasing Filter(앨리어싱 방지 필터) · 출처: Rauch et al., AIAA J., 1965 · Casiez et al., CHI 2012");
   card(s, 0.7, 1.95, 3.35, 2.75);
   T(s, "센서", { x: 0.95, y: 2.1, w: 3, h: 0.3, fontSize: 13, bold: true, color: BLUE });
   T(s, "MPU-6050", { x: 0.95, y: 2.5, w: 3, h: 0.55, fontSize: 24, bold: true, color: NAVY });
@@ -93,7 +89,7 @@ function slide(bg, kicker, title, foot, dark) {
 
 // 5 연구내용 1: 흐름도
 {
-  const s = slide(BG, "어떻게 ① · 연구 흐름도", "측정 → 필터 적용 → 지연 · 정확도 평가", "모든 필터 조건을 같은 데이터에 적용 · 단일 클럭 동기화(STM32 + 동기 LED)");
+  const s = slide(BG, "4. 연구내용 ①", "연구내용 ①: 연구 흐름도", " ");
   const boxes = [
     ["① 측정", "MPU-6050", "정강이 각속도\n센서 내부 AAF ON/OFF\n100 Hz 영상 = 참값", 0],
     ["② 실시간", "STM32", "인과 필터\n고정지연 필터 (d)\n공통 타임스탬프", 1],
@@ -114,13 +110,13 @@ function slide(bg, kicker, title, foot, dark) {
   card(s, 0.7, 4.9, 11.93, 1.55);
   T(s, "세 가지 실험 → ① 측정 데이터", { x: 0.95, y: 5.05, w: 8, h: 0.3, fontSize: 13, bold: true, color: BLUE });
   pill(s, 0.95, 5.6, 3.7, "벤치: 서보 모터로 정강이 모형 구동");
-  pill(s, 4.85, 5.6, 3.6, "인체 보행: 3–5명 · 트레드밀 3속도");
+  pill(s, 4.85, 5.6, 3.6, "인체 보행: 3명 · 트레드밀 3속도");
   pill(s, 8.65, 5.6, 3.75, "임베디드: Arduino vs STM32 연산 비용");
 }
 
 // 6 연구내용 2: 적용 방법
 {
-  const s = slide(BG, "어떻게 ② · 필터 적용 방법", "수업에서 다룬 필터를 세 시점으로 적용한다", "출처: Casiez et al., CHI 2012 (1€ 필터) · Rauch et al., AIAA J. 1965 (RTS)");
+  const s = slide(BG, "4. 연구내용 ②", "연구내용 ②: 필터를 세 시점으로 적용한다", "출처: Casiez et al., CHI 2012 (1€ 필터) · Rauch et al., AIAA J. 1965 (RTS)");
   const hdr = (t, c) => ({ text: t, options: { bold: true, color: c || CREAM, fill: { color: NAVY }, fontFace: F, fontSize: 15 } });
   const cell = (t, f, b) => ({ text: t, options: { fontFace: F, fontSize: 15, color: b ? NAVY : TXT, fill: { color: f }, bold: !!b } });
   s.addTable([
@@ -139,7 +135,7 @@ function slide(bg, kicker, title, foot, dark) {
 
 // 7 연구내용 3: 진행 현황
 {
-  const s = slide(BG, "진행 현황", "진행 현황 및 향후 일정");
+  const s = slide(BG, "4. 연구내용 ③", "연구내용 ③: 진행 현황 및 향후 계획", " ");
   const rows = [["완료", BLUE, "FFFFFF", "연구 설계 · 가설 수립\n필터 구현 및 합성 신호 예비 검증 (Python)", {}],
     ["진행 중", ACCD, "FFFFFF", "측정 시스템 구축: STM32 + MPU-6050 + 동기 LED", { fill: PEACH, line: ACC, lw: 2.5 }],
     ["예정", "D5D9DF", NAVY, "벤치 · 임베디드 · 인체 보행 실험, 분석", {}]];
@@ -158,17 +154,30 @@ function slide(bg, kicker, title, foot, dark) {
   });
 }
 
-// 7 기대효과 · 요약
+// 8 기대효과
 {
-  const s = slide(NAVY, "기대효과 · 요약", "허용 지연별 필터 선택 기준을 만든다", null, true);
-  [["무엇을", "MPU-6050 자이로에 3종 필터 × 3시점(실시간 · 고정지연 · 사후) 적용"], ["어떻게", "같은 데이터 · 영상 참값으로 지연과 이벤트 검출 정확도 비교"], ["기대효과", "“d ms 허용 → 이 필터” 선택 기준 → [소속 연구실] 보행 보조 연구에 활용"]].forEach(([k, t], i) => {
-    const y = 1.95 + i * 0.8;
+  const s = slide(BG2, "5. 기대효과", "기대효과: 허용 지연별 필터 선택 기준", " ");
+  [["새로운 방법론", "허용 지연별 필터 선택 가이드라인", "“d ms 허용 → 이 필터를 이 단계에”", {}],
+   ["분석 틀", "지연과 지연 보정 오차를 분리한 평가", "필터 계열별 지연–정확도 곡선", {}],
+   ["연구실 기여", "[소속 연구실]의 보행 보조 · 웨어러블 연구에 실시간 신호처리 설계 기준으로 활용", "저사양 MCU에서 가능한 필터 범위도 제시", { fill: PEACH, line: ACC, lw: 2.5 }]].forEach(([k, h, d, o], i) => {
+    const x = 0.7 + i * 4.05;
+    card(s, x, 1.95, 3.83, 4.4, o);
+    s.addShape(pres.shapes.OVAL, { x: x + 0.3, y: 2.2, w: 0.6, h: 0.6, fill: { color: ACC }, line: { color: ACC } });
+    T(s, String(i + 1), { x: x + 0.3, y: 2.2, w: 0.6, h: 0.6, fontSize: 18, bold: true, color: "FFFFFF", align: "center", valign: "middle", fontFace: M });
+    T(s, k, { x: x + 0.3, y: 3.05, w: 3.3, h: 0.3, fontSize: 13, bold: true, color: ACCD });
+    T(s, h, { x: x + 0.3, y: 3.45, w: 3.3, h: 1.6, fontSize: 18, bold: true, color: NAVY });
+    T(s, d, { x: x + 0.3, y: 5.15, w: 3.3, h: 1.0, fontSize: 14, color: TXT });
+  });
+}
+
+// 8 결언
+{
+  const s = slide(NAVY, "6. 결언", "결언", " ", true);
+  [["무엇을", "MPU-6050 자이로에 3종 필터 × 3시점(실시간 · 고정지연 · 사후) 적용"], ["어떻게", "같은 데이터 · 영상 참값으로 지연과 이벤트 검출 정확도 비교"], ["결과물", "사후 수준에 도달하는 최소 지연 d* → 허용 지연별 필터 선택 기준"]].forEach(([k, t], i) => {
+    const y = 2.1 + i * 0.9;
     T(s, k, { x: 0.7, y, w: 1.6, h: 0.6, fontSize: 18, bold: true, color: ORL });
     T(s, t, { x: 2.4, y, w: 10.2, h: 0.7, fontSize: 18, color: CREAM });
   });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.7, y: 4.55, w: 11.93, h: 1.0, rectRadius: 0.1, fill: { color: "22304A" }, line: { color: "22304A" } });
-  T(s, "조언 요청: 100 Hz 영상 참값의 해상도(±10 ms)가 비교할 지연 차이와 비슷함 → 정밀도를 높일 방법", { x: 0.95, y: 4.55, w: 11.4, h: 1.0, fontSize: 16, color: CREAM, valign: "middle" });
-  T(s, "감사합니다 · 질의응답", { x: 0.7, y: 6.0, w: 9, h: 0.6, fontSize: 26, bold: true, color: CREAM });
 }
 
 pres.writeFile({ fileName: OUT }).then(() => console.log("written", OUT));
