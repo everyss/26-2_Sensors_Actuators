@@ -1,266 +1,211 @@
 const pptxgen = require("pptxgenjs");
 const fs = require("fs");
 const S = "/tmp/claude-0/-home-user/2d881f96-9a89-58f2-99b0-73650f4069d7/scratchpad/";
-const notes = JSON.parse(fs.readFileSync(S + "pp_notes.json", "utf8"));
+const notes = JSON.parse(fs.readFileSync(S + "pp_notes9.json", "utf8"));
 const OUT = "/home/user/26-2_Sensors_Actuators/slides/midterm_presentation.pptx";
 
 const F = "Malgun Gothic", M = "Courier New";
 const NAVY = "16202E", BG = "F7F6F2", BG2 = "ECEFF3", WHITE = "FDFCFA", ACC = "D9572B", ACCD = "B4471D",
-  BLUE = "1F5FAD", TXT = "3D4756", MUTE = "646D7A", LINE = "CDD3DA", LBLUE = "2A6FC9", CREAM = "F3F1EA", PEACH = "FFF6F1";
+  BLUE = "1F5FAD", TXT = "3D4756", MUTE = "646D7A", LINE = "CDD3DA", LBLUE = "2A6FC9", CREAM = "F3F1EA", PEACH = "FFF6F1", ORL = "F08A5D";
+const TOTAL = 9;
+const DEFAULT_FOOT = "실시간 보행 이벤트 검출을 위한 하지 IMU 필터링 · 중간발표";
 
 const pres = new pptxgen();
-pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5
-pres.title = "하지 IMU 필터링의 정확도–지연 트레이드오프 — 중간발표";
-const FOOT = "하지 IMU 필터링의 정확도–지연 트레이드오프 · 중간발표";
+pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5 in
+pres.title = "실시간 보행 이벤트 검출을 위한 하지 IMU 신호의 필터링 시점별 정확도–지연 비교 (중간발표)";
 let n = 0;
 
-function base(bg, kicker, title, dark) {
+const T = (s, text, o) => s.addText(text, Object.assign({ fontFace: F, fontSize: 16, color: TXT, margin: 0, valign: "top", isTextBox: true }, o));
+const card = (s, x, y, w, h, o = {}) => s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.1, fill: { color: o.fill || WHITE }, line: { color: o.line || LINE, width: o.lw || 1 } });
+const pill = (s, x, y, w, text, o = {}) => {
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h: 0.42, rectRadius: 0.21, fill: { color: o.fill || BG2 }, line: { color: o.fill || BG2 } });
+  T(s, text, { x, y, w, h: 0.42, fontSize: 13, bold: !!o.bold, color: o.color || NAVY, align: "center", valign: "middle" });
+};
+const arrowR = (s, x, y, w, color) => s.addShape(pres.shapes.LINE, { x, y, w, h: 0, line: { color: color || "8A939F", width: 2.5, endArrowType: "triangle" } });
+const bullets = (items) => items.map((t, i, a) => ({ text: t, options: { bullet: true, breakLine: i < a.length - 1 } }));
+
+function slide(bg, kicker, title, foot, dark) {
   const s = pres.addSlide();
   s.background = { color: bg };
   n += 1;
   s.addNotes(notes[n - 1]);
   if (title) {
-    s.addText(kicker, { x: 0.7, y: 0.45, w: 11, h: 0.35, fontFace: F, fontSize: 14, bold: true, color: dark ? "F08A5D" : ACCD, margin: 0, isTextBox: true });
-    s.addText(title, { x: 0.7, y: 0.8, w: 11.9, h: 0.9, fontFace: F, fontSize: 30, bold: true, color: dark ? CREAM : NAVY, margin: 0, valign: "top", isTextBox: true });
-    s.addText(FOOT, { x: 0.7, y: 7.0, w: 9, h: 0.3, fontFace: F, fontSize: 11, color: dark ? "AEB6C2" : MUTE, margin: 0, isTextBox: true });
-    s.addText(String(n).padStart(2, "0") + " / 12", { x: 11.6, y: 7.0, w: 1.03, h: 0.3, fontFace: M, fontSize: 11, color: dark ? "AEB6C2" : MUTE, align: "right", margin: 0, isTextBox: true });
+    T(s, kicker, { x: 0.7, y: 0.45, w: 11, h: 0.35, fontSize: 14, bold: true, color: dark ? ORL : ACCD });
+    T(s, title, { x: 0.7, y: 0.8, w: 11.9, h: 0.9, fontSize: 30, bold: true, color: dark ? CREAM : NAVY });
   }
+  T(s, foot || DEFAULT_FOOT, { x: 0.7, y: 7.0, w: 10.4, h: 0.3, fontSize: 11, color: dark ? "AEB6C2" : MUTE });
+  T(s, `${n} / ${TOTAL}`, { x: 11.6, y: 7.0, w: 1.03, h: 0.3, fontSize: 11, color: dark ? "AEB6C2" : MUTE, align: "right", fontFace: M });
   return s;
 }
-const T = (s, text, o) => s.addText(text, Object.assign({ fontFace: F, fontSize: 16, color: TXT, margin: 0, valign: "top", isTextBox: true }, o));
-const card = (s, x, y, w, h, o = {}) => s.addShape(pres.shapes.ROUNDED_RECTANGLE, Object.assign({ x, y, w, h, rectRadius: 0.1, fill: { color: o.fill || WHITE }, line: { color: o.line || LINE, width: o.lw || 1 } }, o.extra || {}));
-const takeaway = (s, text, y) => {
-  card(s, 0.7, y, 11.93, 0.7, { fill: "FFFFFF", line: ACC, lw: 1.5 });
-  T(s, text, { x: 0.95, y, w: 11.4, h: 0.7, fontSize: 18, bold: true, color: NAVY, valign: "middle" });
-};
 
-// 1 cover
+// 1 제목과 저자
 {
-  const s = base(NAVY, "", "", true);
-  T(s, "센서 및 액추에이터 · 기말 프로젝트 중간발표", { x: 0.9, y: 0.7, w: 11, h: 0.4, fontSize: 16, color: "AEB6C2" });
-  T(s, "하지 IMU 필터링의\n정확도–지연 트레이드오프", { x: 0.9, y: 2.2, w: 11.5, h: 2.2, fontSize: 54, bold: true, color: CREAM, valign: "top" });
-  T(s, "인과 · 고정지연 · 비인과(사후) 필터의 비교 연구 계획", { x: 0.9, y: 4.6, w: 11.5, h: 0.6, fontSize: 24, color: "F08A5D" });
-  T(s, "[이름] · [학번]", { x: 0.9, y: 6.6, w: 6, h: 0.4, fontSize: 16, color: "AEB6C2" });
-  T(s, "2026. 10", { x: 10.4, y: 6.6, w: 2.0, h: 0.4, fontSize: 16, color: "AEB6C2", align: "right", fontFace: M });
+  const s = slide(NAVY, "", "", "센서 및 액추에이터 · 2026-2", true);
+  T(s, "센서 및 액추에이터 · 2026-2", { x: 0.9, y: 0.7, w: 11, h: 0.4, fontSize: 16, color: "AEB6C2" });
+  T(s, "실시간 보행 이벤트 검출을 위한\n하지 IMU 신호의 필터링 시점별\n정확도–지연 비교", { x: 0.9, y: 1.6, w: 11.5, h: 2.7, fontSize: 40, bold: true, color: CREAM });
+  T(s, "인과 · 고정지연 · 비인과 필터를 중심으로", { x: 0.9, y: 4.35, w: 11.5, h: 0.5, fontSize: 22, color: ORL });
+  T(s, "(중간발표, [발표일])", { x: 0.9, y: 4.95, w: 11.5, h: 0.4, fontSize: 16, color: CREAM });
+  T(s, "[1저자] · [2저자] · [3저자]", { x: 0.9, y: 5.9, w: 8, h: 0.4, fontSize: 18, bold: true, color: CREAM });
+  T(s, "[소속 연구실]", { x: 0.9, y: 6.35, w: 8, h: 0.35, fontSize: 14, color: "AEB6C2" });
 }
 
-// 2 gait
+// 2 연구배경 1
 {
-  const s = base(BG, "연구 배경 1", "보행 이벤트 기반 제어에는 저지연 신호가 필요하다");
-  const items = [["측정 신호", "정강이 부착 IMU의 시상면 각속도 (자이로 1축)"], ["활용", "보행 이벤트(TO · MS · HS) 검출 → 외골격 · 의족의 보조 타이밍 결정"], ["요구 조건", "보행 주기 ≈ 1 s → 수십 ms의 지연도 제어 성능에 직접 영향"]];
-  items.forEach((it, i) => {
+  const s = slide(BG, "연구배경 1", "보행 보조에는 빠르고 정확한 IMU 신호가 필요하다", "출처: Aminian et al., J. Biomech. 35(5), 2002");
+  [["측정", "IMU(관성측정장치)로 정강이 회전 각속도 측정"], ["활용", "HS(뒤꿈치 닿기) · TO(발끝 떼기) 시점에 외골격이 보조력 인가"], ["요구 조건", "보행 주기 ≈ 1 s → 수십 ms 지연도 보조 타이밍 오차"]].forEach(([h, d], i) => {
     const y = 2.1 + i * 1.5;
     s.addShape(pres.shapes.OVAL, { x: 0.7, y: y + 0.05, w: 0.5, h: 0.5, fill: { color: ACC }, line: { color: ACC } });
     T(s, String(i + 1), { x: 0.7, y: y + 0.05, w: 0.5, h: 0.5, fontSize: 16, bold: true, color: "FFFFFF", align: "center", valign: "middle", fontFace: M });
-    T(s, it[0], { x: 1.45, y, w: 4.3, h: 0.35, fontSize: 14, bold: true, color: ACCD });
-    T(s, it[1], { x: 1.45, y: y + 0.4, w: 4.3, h: 1.0, fontSize: 18, color: NAVY });
+    T(s, h, { x: 1.45, y, w: 4.3, h: 0.35, fontSize: 14, bold: true, color: ACCD });
+    T(s, d, { x: 1.45, y: y + 0.4, w: 4.3, h: 1.0, fontSize: 18, color: NAVY });
   });
   card(s, 6.1, 1.95, 6.5, 4.45);
   s.addImage({ path: S + "pp_gait.png", x: 6.25, y: 2.1, w: 6.2, h: 3.35 });
-  T(s, "정강이 시상면 각속도 (한 보행 주기)", { x: 6.25, y: 5.6, w: 6.2, h: 0.3, fontSize: 14, color: MUTE, align: "center" });
-  T(s, "회색 = 입각기(stance) · 주황 = 유각기(swing)", { x: 6.25, y: 5.95, w: 6.2, h: 0.3, fontSize: 14, color: MUTE, align: "center" });
+  T(s, "정강이 각속도 (한 보행 주기)", { x: 6.25, y: 5.6, w: 6.2, h: 0.3, fontSize: 14, color: MUTE, align: "center" });
+  T(s, "회색 = 입각기 · 주황 = 유각기", { x: 6.25, y: 5.95, w: 6.2, h: 0.3, fontSize: 14, color: MUTE, align: "center" });
 }
 
-// 3 lag
+// 3 연구배경 2
 {
-  const s = base(BG, "연구 배경 2", "인과 필터는 잡음을 줄이는 대신 위상 지연을 만든다");
-  card(s, 0.7, 1.95, 6.9, 4.5);
-  s.addImage({ path: S + "pp_lag.png", x: 0.9, y: 2.1, w: 6.5, h: 3.6 });
-  s.addShape(pres.shapes.LINE, { x: 0.95, y: 6.05, w: 0.5, h: 0, line: { color: NAVY, width: 3 } });
-  T(s, "참 신호", { x: 1.55, y: 5.9, w: 1.4, h: 0.3, fontSize: 14 });
-  s.addShape(pres.shapes.LINE, { x: 3.2, y: 6.05, w: 0.5, h: 0, line: { color: LBLUE, width: 3 } });
-  T(s, "인과 저역통과 필터 출력 (개념도)", { x: 3.8, y: 5.9, w: 3.7, h: 0.3, fontSize: 14 });
-  card(s, 7.9, 1.95, 4.73, 2.1);
-  T(s, "잡음원과 신호 대역", { x: 8.1, y: 2.05, w: 4.4, h: 0.3, fontSize: 14, bold: true, color: ACCD });
-  T(s, "착지 충격 · 연부조직 아티팩트(10–30 Hz) · 외부 진동 · 센서 잡음. 보행 성분은 대부분 10 Hz 이하 → 저역통과 필터로 분리", { x: 8.1, y: 2.45, w: 4.4, h: 1.5, fontSize: 15, color: NAVY });
-  card(s, 7.9, 4.25, 4.73, 2.2);
-  T(s, "지연의 원인", { x: 8.1, y: 4.35, w: 4.4, h: 0.3, fontSize: 14, bold: true, color: BLUE });
-  T(s, "인과 필터는 현재 · 과거 샘플만 사용 → 위상 지연 불가피", { x: 8.1, y: 4.75, w: 4.4, h: 0.7, fontSize: 15, color: NAVY });
-  T(s, "예: 2차 Butterworth 10 Hz ≈ 30 ms\nMPU-6050 DLPF 42 Hz → 4.8 ms, 5 Hz → 18.6 ms", { x: 8.1, y: 5.5, w: 4.4, h: 0.85, fontSize: 13, color: TXT });
-}
-
-// 4 window
-{
-  const s = base(BG, "연구 배경 3", "사전/사후의 본질적 차이는 미래 샘플의 사용 여부다");
-  const xs = [4.3, 5.2, 6.1, 7.0, 7.9, 8.8, 9.7, 10.6, 11.5, 12.4].slice(0, 0); // unused
-  const x0 = 3.7, dx = 0.82, cur = 5; // index of "now" among 11 samples (0..10)
-  const px = (i) => x0 + i * dx;
-  // rows
-  const y1 = 2.75, y2 = 4.95;
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px(1) - 0.2, y: y1 - 0.3, w: 4 * dx + 0.4, h: 0.6, rectRadius: 0.3, fill: { color: "DCE8F8" }, line: { color: LBLUE, width: 1.5 } });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px(3) - 0.2, y: y2 - 0.3, w: 4 * dx + 0.4, h: 0.6, rectRadius: 0.3, fill: { color: "FBE3D7" }, line: { color: ACC, width: 1.5 } });
-  s.addShape(pres.shapes.LINE, { x: px(cur), y: 2.0, w: 0, h: 3.7, line: { color: ACCD, width: 1.5, dashType: "dash" } });
+  const s = slide(BG, "연구배경 2", "기존 방식의 한계: 실시간은 늦고, 사후는 쓸 수 없다", "출처: Winter, Biomechanics and Motor Control of Human Movement, 4th ed., 2009");
+  const x0 = 3.7, dx = 0.8, cur = 5, px = (i) => x0 + i * dx, y1 = 2.5, y2 = 3.95;
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px(1) - 0.2, y: y1 - 0.28, w: 4 * dx + 0.4, h: 0.56, rectRadius: 0.28, fill: { color: "DCE8F8" }, line: { color: LBLUE, width: 1.5 } });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px(3) - 0.2, y: y2 - 0.28, w: 4 * dx + 0.4, h: 0.56, rectRadius: 0.28, fill: { color: "FBE3D7" }, line: { color: ACC, width: 1.5 } });
+  s.addShape(pres.shapes.LINE, { x: px(cur), y: 1.95, w: 0, h: 2.45, line: { color: ACCD, width: 1.5, dashType: "dash" } });
   for (let i = 0; i <= 10; i++) {
-    const future = i > cur;
-    s.addShape(pres.shapes.OVAL, { x: px(i) - 0.11, y: y1 - 0.11, w: 0.22, h: 0.22, fill: { color: future ? BG : "3D4756" }, line: { color: future ? "9AA3AF" : "3D4756", width: 1.5 } });
-    s.addShape(pres.shapes.OVAL, { x: px(i) - 0.11, y: y2 - 0.11, w: 0.22, h: 0.22, fill: { color: "3D4756" }, line: { color: "3D4756" } });
+    const fut = i > cur;
+    s.addShape(pres.shapes.OVAL, { x: px(i) - 0.1, y: y1 - 0.1, w: 0.2, h: 0.2, fill: { color: fut ? BG : "3D4756" }, line: { color: fut ? "9AA3AF" : "3D4756", width: 1.5 } });
+    s.addShape(pres.shapes.OVAL, { x: px(i) - 0.1, y: y2 - 0.1, w: 0.2, h: 0.2, fill: { color: "3D4756" }, line: { color: "3D4756" } });
   }
-  T(s, "k (현재)", { x: px(cur) - 0.8, y: 1.7, w: 1.6, h: 0.3, fontSize: 14, bold: true, color: ACCD, align: "center", fontFace: M });
-  T(s, "인과 이동평균 (사전)", { x: 0.7, y: y1 - 0.4, w: 2.9, h: 0.35, fontSize: 16, bold: true, color: NAVY });
-  T(s, "y[k] = mean(x[k−4 … k])", { x: 0.7, y: y1 - 0.02, w: 2.9, h: 0.3, fontSize: 12, color: MUTE, fontFace: M });
-  T(s, "출력 ≈ 2샘플 전 값 (군지연)", { x: px(1) - 0.2, y: y1 + 0.4, w: 4 * dx + 0.4, h: 0.3, fontSize: 14, bold: true, color: BLUE, align: "center" });
-  T(s, "미수신(미래) 샘플", { x: px(6), y: y1 + 0.4, w: 3.3, h: 0.3, fontSize: 14, color: MUTE });
-  T(s, "중심 이동평균 (사후)", { x: 0.7, y: y2 - 0.4, w: 2.9, h: 0.35, fontSize: 16, bold: true, color: NAVY });
-  T(s, "y[k] = mean(x[k−2 … k+2])", { x: 0.7, y: y2 - 0.02, w: 2.9, h: 0.3, fontSize: 12, color: MUTE, fontFace: M });
-  T(s, "출력 = 현재 값 (영위상, 지연 0)", { x: px(3) - 0.2, y: y2 + 0.4, w: 4 * dx + 0.4, h: 0.3, fontSize: 14, bold: true, color: ACCD, align: "center" });
-  T(s, [{ text: "동일 필터의 결과는 계산 시점과 무관 → 차이는 ", options: {} }, { text: "인과성(미래 샘플 사용)", options: { color: ACCD, bold: true } }], { x: 0.7, y: 5.95, w: 11.9, h: 0.5, fontSize: 22, color: NAVY });
-  T(s, "비인과 필터는 기록 완료 후에만 적용 가능 → 실시간 제어에는 사용 불가", { x: 0.7, y: 6.5, w: 11.9, h: 0.35, fontSize: 14, color: MUTE });
-}
-
-// 5 fixed-lag
-{
-  const s = base(BG2, "연구 배경 4 · 핵심 관점", "고정지연 스무딩: 사전과 사후 사이의 설계 공간");
-  card(s, 0.7, 1.85, 11.93, 0.65);
-  T(s, "추정 이론의 구분", { x: 0.9, y: 1.85, w: 2.3, h: 0.65, fontSize: 14, bold: true, color: BLUE, valign: "middle" });
-  T(s, "filtering x(k|k) · fixed-lag smoothing x(k−d|k) · smoothing x(k|N)", { x: 3.2, y: 1.85, w: 9.3, h: 0.65, fontSize: 16, color: NAVY, valign: "middle", fontFace: M });
-  s.addShape(pres.shapes.LINE, { x: 0.8, y: 3.0, w: 11.7, h: 0, line: { color: "9AA3AF", width: 2.5, endArrowType: "triangle" } });
-  T(s, "허용 지연 d", { x: 10.5, y: 2.55, w: 2.1, h: 0.3, fontSize: 14, color: MUTE, align: "right" });
-  [[2.9, 0.22, "3D4756"], [6.55, 0.34, ACC], [10.4, 0.22, "3D4756"]].forEach(([cx, d, c]) =>
-    s.addShape(pres.shapes.OVAL, { x: cx + 0.55 - d / 2, y: 3.0 - d / 2, w: d, h: d, fill: { color: c }, line: { color: c } }));
-  const cols = [[0.7, "d = 0", "인과 필터 (사전)", "현재 · 과거 샘플만 사용 → 위상 지연 발생", false], [4.75, "0 < d < ∞", "고정지연 필터", "d 만큼의 지연을 허용하고 미래 샘플 활용 → 실시간 동작 + 정확도 향상", true], [8.8, "d = ∞", "비인과 필터 (사후)", "전체 기록 사용 → 영위상, 실시간 적용 불가", false]];
-  cols.forEach(([x, tag, h, d, hi]) => {
-    card(s, x, 3.45, 3.83, 2.35, { fill: hi ? PEACH : WHITE, line: hi ? ACC : LINE, lw: hi ? 2.5 : 1 });
-    T(s, tag, { x: x + 0.25, y: 3.6, w: 3.3, h: 0.3, fontSize: 14, bold: hi, color: hi ? ACCD : MUTE, fontFace: M });
-    T(s, h, { x: x + 0.25, y: 3.95, w: 3.3, h: 0.45, fontSize: 20, bold: true, color: NAVY });
-    T(s, d, { x: x + 0.25, y: 4.5, w: 3.35, h: 1.25, fontSize: 15, color: TXT });
+  T(s, "현재", { x: px(cur) - 0.6, y: 1.65, w: 1.2, h: 0.3, fontSize: 13, bold: true, color: ACCD, align: "center" });
+  T(s, "실시간(인과) 필터", { x: 0.7, y: y1 - 0.35, w: 2.9, h: 0.35, fontSize: 16, bold: true, color: NAVY });
+  T(s, "과거 샘플 5개 평균", { x: 0.7, y: y1 + 0.02, w: 2.9, h: 0.3, fontSize: 13, color: MUTE });
+  T(s, "출력 = 2샘플 전 값 → 지연", { x: px(1) - 0.2, y: y1 + 0.35, w: 4 * dx + 0.4, h: 0.3, fontSize: 13, bold: true, color: BLUE, align: "center" });
+  T(s, "미래 샘플 (아직 없음)", { x: px(6), y: y1 + 0.35, w: 3.2, h: 0.3, fontSize: 13, color: MUTE });
+  T(s, "사후(비인과) 필터", { x: 0.7, y: y2 - 0.35, w: 2.9, h: 0.35, fontSize: 16, bold: true, color: NAVY });
+  T(s, "앞뒤 샘플 5개 평균", { x: 0.7, y: y2 + 0.02, w: 2.9, h: 0.3, fontSize: 13, color: MUTE });
+  T(s, "출력 = 현재 값 → 지연 0", { x: px(3) - 0.2, y: y2 + 0.35, w: 4 * dx + 0.4, h: 0.3, fontSize: 13, bold: true, color: ACCD, align: "center" });
+  [[0.7, "실시간 필터", BLUE, "위상 지연 발생 (예: 10 Hz 2차 Butterworth ≈ 30 ms)"], [6.75, "사후 필터", ACCD, "지연 0, 단 측정 완료 후에만 가능 → 실시간 제어 불가"]].forEach(([x, h, c, d]) => {
+    card(s, x, 4.85, 5.88, 1.15);
+    T(s, h, { x: x + 0.25, y: 4.95, w: 5.4, h: 0.3, fontSize: 13, bold: true, color: c });
+    T(s, d, { x: x + 0.25, y: 5.3, w: 5.4, h: 0.65, fontSize: 15, color: NAVY });
   });
-  takeaway(s, "본 연구: 허용 지연 d를 독립변수로 두고, 사후 수준 정확도에 도달하는 최소 지연을 정량화", 6.05);
+  card(s, 0.7, 6.2, 11.93, 0.6, { fill: "FFFFFF", line: ACC, lw: 1.5 });
+  T(s, "문제: ‘얼마나 기다리면 충분한가’에 대한 정량 기준이 없다", { x: 0.95, y: 6.2, w: 11.4, h: 0.6, fontSize: 16, bold: true, color: NAVY, valign: "middle" });
 }
 
-// 6 aliasing
+// 4 연구목적
 {
-  const s = base(BG, "연구 배경 5", "앨리어싱은 샘플링 이전 단계에서만 억제할 수 있다");
-  card(s, 0.7, 1.95, 7.2, 3.8);
-  s.addImage({ path: S + "pp_alias.png", x: 0.85, y: 2.1, w: 6.9, h: 3.07 });
-  s.addShape(pres.shapes.LINE, { x: 0.95, y: 5.4, w: 0.4, h: 0, line: { color: "AEB6C2", width: 2 } });
-  T(s, "실제 진동 104 Hz", { x: 1.45, y: 5.25, w: 2.0, h: 0.3, fontSize: 12 });
-  s.addShape(pres.shapes.OVAL, { x: 3.6, y: 5.3, w: 0.2, h: 0.2, fill: { color: ACC }, line: { color: ACC } });
-  T(s, "샘플 (fs = 100 Hz)", { x: 3.9, y: 5.25, w: 1.9, h: 0.3, fontSize: 12 });
-  s.addShape(pres.shapes.LINE, { x: 5.85, y: 5.4, w: 0.4, h: 0, line: { color: ACC, width: 3 } });
-  T(s, "관측 4 Hz (alias)", { x: 6.35, y: 5.25, w: 1.5, h: 0.3, fontSize: 12 });
-  card(s, 8.2, 1.95, 4.43, 1.1);
-  T(s, "나이퀴스트 주파수(fs/2 = 50 Hz)를 넘는 성분은 |f − n·fs|로 접혀 관측된다", { x: 8.4, y: 1.95, w: 4.05, h: 1.1, fontSize: 15, color: NAVY, valign: "middle" });
-  [["1", "104 Hz 진동 → |104 − 100| = 4 Hz로 접힘"], ["2", "4 Hz는 보행 운동 대역과 중첩 → 샘플링 후에는 분리 불가"], ["3", "대가: 센서 내부 필터의 지연 (예: DLPF 42 Hz → 4.8 ms)"]].forEach(([k, t], i) => {
-    const y = 3.3 + i * 0.82;
-    T(s, k, { x: 8.2, y, w: 0.4, h: 0.4, fontSize: 18, bold: true, color: ACCD, fontFace: M });
-    T(s, t, { x: 8.65, y, w: 3.95, h: 0.75, fontSize: 15 });
+  const s = slide(BG2, "연구목적", "‘허용 지연’을 기준으로 최적 필터를 정한다", "출처: Rauch, Tung, Striebel, AIAA J. 3(8), 1965 (고정지연 · RTS 스무더)");
+  card(s, 0.7, 1.95, 4.6, 2.6);
+  T(s, "문제 정의", { x: 0.95, y: 2.1, w: 4.1, h: 0.3, fontSize: 13, bold: true, color: BLUE });
+  T(s, "필터 지연을 얼마까지 허용해야 사후 필터 수준의 정확도를 얻는가?", { x: 0.95, y: 2.5, w: 4.1, h: 1.9, fontSize: 20, bold: true, color: NAVY });
+  s.addShape(pres.shapes.RIGHT_ARROW, { x: 5.42, y: 3.0, w: 0.5, h: 0.4, fill: { color: ACC }, line: { color: ACC } });
+  card(s, 6.05, 1.95, 6.58, 2.6, { fill: PEACH, line: ACC, lw: 2.5 });
+  T(s, "해결 방법", { x: 6.3, y: 2.1, w: 6, h: 0.3, fontSize: 13, bold: true, color: ACCD });
+  T(s, [{ text: "허용 지연 d", options: { bold: true } }, { text: "를 독립변수로 둔 " }, { text: "고정지연 필터", options: { bold: true } }, { text: ": d만큼 기다려 미래 샘플을 활용" }], { x: 6.3, y: 2.5, w: 6.1, h: 1.1, fontSize: 18, color: NAVY });
+  pill(s, 6.3, 3.85, 1.9, "d = 0 · 실시간");
+  pill(s, 8.3, 3.85, 2.25, "0 < d < ∞ · 고정지연", { fill: ACC, color: "FFFFFF", bold: true });
+  pill(s, 10.65, 3.85, 1.8, "d = ∞ · 사후");
+  card(s, 0.7, 4.85, 11.93, 1.75);
+  T(s, "차별점", { x: 0.95, y: 5.0, w: 4, h: 0.3, fontSize: 13, bold: true, color: ACCD });
+  T(s, "기존: 필터 ‘종류’ 비교 중심 → 본 연구: 필터 ‘시점(허용 지연)’을 축으로 같은 데이터에서 정량 비교\n+ 센서 내부 AAF(Anti-Aliasing Filter, 앨리어싱 방지 필터) 효과까지 포함", { x: 0.95, y: 5.4, w: 11.4, h: 1.1, fontSize: 16, color: TXT, paraSpaceAfter: 6 });
+}
+
+// 5 연구내용 1: 흐름도
+{
+  const s = slide(BG, "연구내용 1 · 연구 흐름도", "측정 → 실시간 · 사후 필터 → 지연–정확도 평가", "모든 필터 조건을 같은 데이터에 적용 · 단일 클럭 동기화(STM32 + 동기 LED)");
+  const boxes = [
+    ["① 측정", "MPU-6050", "정강이 각속도\n센서 내부 AAF ON/OFF\n100 Hz 영상 = 참값", 0],
+    ["② 실시간", "STM32", "인과 필터\n고정지연 필터 (d)\n공통 타임스탬프", 1],
+    ["③ 사후", "PC", "비인과 필터\n(영위상 · RTS)", 0],
+    ["④ 평가", "지표 계산", "지연 D\n지연 보정 RMSE\n이벤트 시점 오차", 0],
+    ["⑤ 산출물", "선택 기준", "지연–정확도 곡선\n최소 지연 d*", 2],
+  ];
+  const w = 2.15, gap = 0.3;
+  boxes.forEach(([k, h, d, style], i) => {
+    const x = 0.7 + i * (w + gap);
+    if (style === 2) s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.95, w, h: 2.6, rectRadius: 0.1, fill: { color: NAVY }, line: { color: NAVY } });
+    else card(s, x, 1.95, w, 2.6, style === 1 ? { fill: PEACH, line: ACC, lw: 2.5 } : {});
+    T(s, k, { x: x + 0.18, y: 2.1, w: w - 0.3, h: 0.3, fontSize: 13, bold: true, color: style === 2 ? ORL : ACCD, fontFace: M });
+    T(s, h, { x: x + 0.18, y: 2.45, w: w - 0.3, h: 0.4, fontSize: 17, bold: true, color: style === 2 ? CREAM : NAVY });
+    T(s, d, { x: x + 0.18, y: 2.95, w: w - 0.3, h: 1.5, fontSize: 13, color: style === 2 ? "D5D9DF" : TXT, paraSpaceAfter: 4 });
+    if (i < boxes.length - 1) arrowR(s, x + w + 0.02, 3.25, gap - 0.04);
   });
-  takeaway(s, "센서 내부 안티앨리어싱 필터 = 사후로 대체할 수 없는 사전 필터", 6.0);
+  card(s, 0.7, 4.9, 11.93, 1.55);
+  T(s, "세 가지 실험 → ① 측정 데이터", { x: 0.95, y: 5.05, w: 8, h: 0.3, fontSize: 13, bold: true, color: BLUE });
+  pill(s, 0.95, 5.6, 3.7, "벤치: 서보 모터로 정강이 모형 구동");
+  pill(s, 4.85, 5.6, 3.6, "인체 보행: 3–5명 · 트레드밀 3속도");
+  pill(s, 8.65, 5.6, 3.75, "임베디드: Arduino vs STM32 연산 비용");
 }
 
-// 7 motivation
+// 6 연구내용 2: 적용 방법
 {
-  const s = base(BG, "주제 선정", "연구 질문: 허용 지연에 따른 최적 필터 구성");
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.7, y: 1.85, w: 11.93, h: 1.2, rectRadius: 0.1, fill: { color: NAVY }, line: { color: NAVY } });
-  T(s, "RESEARCH QUESTION", { x: 1.0, y: 1.95, w: 6, h: 0.3, fontSize: 12, bold: true, color: "F08A5D" });
-  T(s, "허용 지연 d에서 어떤 필터를 어느 단계에 두어야 정확도가 최대인가?", { x: 1.0, y: 2.3, w: 11.4, h: 0.65, fontSize: 24, color: CREAM, bold: true, valign: "middle" });
-  T(s, "주제 선정 이유", { x: 0.7, y: 3.3, w: 5, h: 0.3, fontSize: 14, bold: true, color: ACCD });
-  ["실시간 제어와 오프라인 분석의 최적 필터는 다르나, 지연–정확도의 정량 비교가 부족", "샘플링 · 앨리어싱 · 센서 내부 필터 · 위상 지연 = 센서 시스템 설계의 핵심", "적응형 · 고정지연 필터를 실제 하지 신호와 임베디드 환경에서 검증"].forEach((t, i) => {
-    const y = 3.75 + i * 1.0;
-    T(s, String(i + 1), { x: 0.7, y, w: 0.4, h: 0.4, fontSize: 18, bold: true, color: ACCD, fontFace: M });
-    T(s, t, { x: 1.15, y, w: 4.9, h: 0.95, fontSize: 15 });
-  });
-  T(s, "가설", { x: 6.5, y: 3.3, w: 5, h: 0.3, fontSize: 14, bold: true, color: BLUE });
-  [["H1", "동일 인과 필터는 MCU와 PC에서 같은 출력 (검증용)"], ["H2", "d ≤ 10 ms에서는 적응형(1€) 필터가 고정 차단 필터보다 정확"], ["H3", "d ≈ 20 ms에서 고정지연 필터가 사후 필터 수준에 도달"], ["H4", "센서 내부 AAF는 사후로 제거 불가능한 앨리어싱을 억제"], ["H5", "동일 필터의 사전 · 사후 중복은 지연 개선 없이 과평활만 유발"]].forEach(([k, t], i) => {
-    const y = 3.75 + i * 0.6;
-    T(s, k, { x: 6.5, y, w: 0.6, h: 0.5, fontSize: 15, bold: true, color: BLUE, fontFace: M });
-    T(s, t, { x: 7.15, y, w: 5.45, h: 0.55, fontSize: 14, bold: k === "H3", color: k === "H3" ? NAVY : TXT });
-  });
-}
-
-// 8 system
-{
-  const s = base(BG, "연구 방법 1", "단일 클럭 동기화 기반 측정 시스템");
-  const box = (x, y, w, h, t, sub, o = {}) => { card(s, x, y, w, h, o); T(s, t, { x: x + 0.25, y: y + 0.15, w: w - 0.5, h: 0.45, fontSize: 18, bold: true, color: NAVY }); if (sub) T(s, sub, { x: x + 0.25, y: y + 0.65, w: w - 0.5, h: h - 0.7, fontSize: 14, color: MUTE }); };
-  const arr = (x, y, w) => s.addShape(pres.shapes.LINE, { x, y, w, h: 0, line: { color: "8A939F", width: 2, endArrowType: "triangle" } });
-  box(0.7, 1.95, 3.7, 1.15, "IMU · MPU-6050", "정강이 각속도 · I2C");
-  box(0.7, 3.3, 3.7, 1.15, "카메라 + 동기 LED", "100 Hz 촬영 · 보행 이벤트 참값");
-  arr(4.45, 2.52, 0.65); arr(4.45, 3.87, 0.65);
-  card(s, 5.15, 1.95, 3.9, 2.5, { fill: PEACH, line: ACC, lw: 2.5 });
-  T(s, "STM32", { x: 5.4, y: 2.1, w: 3.4, h: 0.5, fontSize: 22, bold: true, color: NAVY });
-  T(s, ["모든 센서를 같은 시계로 기록", "실시간 인과 · 고정지연 필터", "raw + 필터 출력 동시 저장"].map((t, i, a) => ({ text: t, options: { bullet: true, breakLine: i < a.length - 1 } })), { x: 5.4, y: 2.8, w: 3.5, h: 1.6, fontSize: 15, paraSpaceAfter: 8 });
-  arr(9.1, 3.2, 0.8);
-  T(s, "UART", { x: 9.1, y: 2.85, w: 0.8, h: 0.3, fontSize: 12, color: MUTE, align: "center", fontFace: M });
-  box(9.95, 2.6, 2.68, 1.3, "PC", "비인과 필터 · 분석");
-  box(0.7, 4.85, 4.4, 1.3, "Arduino", "서보 모터 구동 · 저사양 MCU 비교");
-  arr(5.15, 5.5, 1.0);
-  T(s, "PWM", { x: 5.15, y: 5.15, w: 1.0, h: 0.3, fontSize: 12, color: MUTE, align: "center", fontFace: M });
-  box(6.2, 4.85, 3.2, 1.3, "서보 모터", "벤치 링크 구동");
-  T(s, "단일 클럭 동기화 = ms 단위 지연 측정의 전제 조건", { x: 9.8, y: 4.9, w: 2.85, h: 1.2, fontSize: 16, bold: true, color: NAVY });
-}
-
-// 9 filters
-{
-  const s = base(BG, "연구 방법 2", "비교 필터: 세 계열 × 세 처리 시점");
+  const s = slide(BG, "연구내용 2 · 적용 방법", "수업에서 다룬 필터를 세 처리 시점으로 확장한다", "출처: Casiez et al., CHI 2012 (1€ 필터) · Rauch et al., AIAA J. 1965 (RTS)");
   const hdr = (t, c) => ({ text: t, options: { bold: true, color: c || CREAM, fill: { color: NAVY }, fontFace: F, fontSize: 15 } });
   const cell = (t, f, b) => ({ text: t, options: { fontFace: F, fontSize: 15, color: b ? NAVY : TXT, fill: { color: f }, bold: !!b } });
   s.addTable([
-    [hdr("필터 계열"), hdr("인과 (d = 0)"), hdr("고정지연 (0 < d < ∞)", "F08A5D"), hdr("비인과 · 사후 (d = ∞)")],
-    [cell("고전 선형 (기준선)", WHITE, 1), cell("2차 Butterworth IIR", WHITE), cell("선형위상 FIR", WHITE), cell("영위상 Butterworth", WHITE)],
-    [cell("적응형", BG2, 1), cell("1€ filter", BG2), cell("–", BG2), cell("–", BG2)],
-    [cell("모델 기반", WHITE, 1), cell("Kalman filter", WHITE), cell("고정지연 칼만 스무더", WHITE), cell("RTS 스무더", WHITE)],
-  ], { x: 0.7, y: 1.85, w: 11.93, colW: [2.9, 2.9, 3.2, 2.93], rowH: 0.55, border: { type: "solid", color: LINE, pt: 1 }, valign: "middle", margin: [0, 0.15, 0, 0.15] });
-  [["Butterworth", "최대 평탄 응답의 표준 저역통과 필터. 사후형은 정 · 역방향 통과(filtfilt)로 영위상"], ["1€ filter (Casiez 2012)", "변화율에 따라 차단 주파수 적응: f_c = f_min + β·|dx/dt| → 저속 구간 평활, 고속 구간 저지연"], ["Kalman 계열", "상태 [ω, ω′] 등속 모델. filtering → fixed-lag → RTS smoothing이 세 시점에 일대일 대응"]].forEach(([h, d], i) => {
+    [hdr("필터 계열"), hdr("실시간 (d = 0)"), hdr("고정지연 (0 < d < ∞)", ORL), hdr("사후 (d = ∞)")],
+    [cell("저역통과", WHITE, 1), cell("2차 Butterworth", WHITE), cell("선형위상 FIR", WHITE), cell("영위상 Butterworth", WHITE)],
+    [cell("적응형", BG2, 1), cell("1€ 필터", BG2), cell("–", BG2), cell("–", BG2)],
+    [cell("칼만", WHITE, 1), cell("칼만 필터", WHITE), cell("고정지연 스무더", WHITE), cell("RTS 스무더", WHITE)],
+  ], { x: 0.7, y: 1.95, w: 11.93, colW: [2.3, 3.2, 3.23, 3.2], rowH: 0.5, border: { type: "solid", color: LINE, pt: 1 }, valign: "middle", margin: [0, 0.15, 0, 0.15] });
+  [[0.7, "수업 내용 적용", ACCD, ["이동평균 · 저역통과 → Butterworth · FIR", "칼만 필터 → 실시간 · 고정지연 · RTS", "재귀 평균 필터 → 자이로 바이어스 보정", "샘플링 · 앨리어싱 → 센서 내부 AAF ON/OFF"]],
+   [6.75, "평가 지표 · 장비", BLUE, ["지연 D · 지연 보정 RMSE(평균제곱근오차)", "HS/TO 이벤트 시점 오차 (평균 · 지터)", "MCU(마이크로컨트롤러) 연산 시간 · 메모리", "MPU-6050 · STM32 · Arduino · 100 Hz 카메라"]]].forEach(([x, h, c, items]) => {
+    card(s, x, 4.25, 5.88, 2.5);
+    T(s, h, { x: x + 0.25, y: 4.4, w: 5.4, h: 0.3, fontSize: 13, bold: true, color: c });
+    T(s, bullets(items), { x: x + 0.25, y: 4.8, w: 5.45, h: 1.9, fontSize: 14, paraSpaceAfter: 6 });
+  });
+}
+
+// 7 연구내용 3: 진행 현황
+{
+  const s = slide(BG, "연구내용 3", "진행 현황 및 향후 일정");
+  const rows = [["완료", BLUE, "FFFFFF", "연구 설계 · 가설 수립\n필터 구현 및 합성 신호 예비 검증 (Python)", {}],
+    ["진행 중", ACCD, "FFFFFF", "측정 시스템 구축: STM32 + MPU-6050 + 동기 LED", { fill: PEACH, line: ACC, lw: 2.5 }],
+    ["예정", "D5D9DF", NAVY, "벤치 · 임베디드 · 인체 보행 실험, 분석", {}]];
+  rows.forEach(([tag, bg, fg, d, o], i) => {
+    const y = 1.95 + i * 1.45;
+    card(s, 0.7, y, 7.2, 1.25, o);
+    pill(s, 0.95, y + 0.2, 1.15, tag, { fill: bg, color: fg, bold: true });
+    T(s, d, { x: 2.35, y: y + 0.18, w: 5.4, h: 0.95, fontSize: 16, color: NAVY });
+  });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 8.2, y: 1.95, w: 4.43, h: 4.15, rectRadius: 0.1, fill: { color: NAVY }, line: { color: NAVY } });
+  T(s, "향후 일정", { x: 8.45, y: 2.1, w: 3.9, h: 0.3, fontSize: 13, bold: true, color: ORL });
+  [["9–10주", "시스템 구축 · 벤치 실험"], ["11주", "임베디드 실험"], ["12주", "인체 보행 실험"], ["13–14주", "분석 · 결과 정리"], ["15주", "기말 발표"]].forEach(([w, t], i) => {
+    const y = 2.6 + i * 0.66;
+    T(s, w, { x: 8.45, y, w: 1.2, h: 0.35, fontSize: 14, color: ORL, fontFace: M });
+    T(s, t, { x: 9.75, y, w: 2.7, h: 0.35, fontSize: 14, color: CREAM });
+  });
+}
+
+// 8 기대효과
+{
+  const s = slide(BG2, "기대효과", "실시간 보행 보조를 위한 필터 설계 기준을 제공한다");
+  [["새로운 방법론", "허용 지연별 필터 선택 가이드라인", "“d ms 허용 → 이 필터를 이 단계에”", {}],
+   ["분석 틀", "지연과 지연 보정 오차를 분리한 평가", "필터 계열별 지연–정확도 곡선", {}],
+   ["연구실 기여", "[소속 연구실]의 보행 보조 · 웨어러블 연구에 실시간 신호처리 설계 기준으로 활용", "저사양 MCU에서 가능한 필터 범위도 제시", { fill: PEACH, line: ACC, lw: 2.5 }]].forEach(([k, h, d, o], i) => {
     const x = 0.7 + i * 4.05;
-    card(s, x, 4.4, 3.83, 1.75);
-    T(s, h, { x: x + 0.2, y: 4.5, w: 3.45, h: 0.35, fontSize: 15, bold: true, color: ACCD });
-    T(s, d, { x: x + 0.2, y: 4.9, w: 3.45, h: 1.2, fontSize: 14 });
-  });
-  [["+ 센서 내부 AAF ON / OFF", 3.1], ["+ 공통 전처리: 정지 10 s 구간 재귀 평균으로 자이로 바이어스 보정", 7.2]].forEach(([t, w], i) => {
-    const x = i === 0 ? 0.7 : 4.0;
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 6.35, w: i === 0 ? 3.0 : 8.6, h: 0.45, rectRadius: 0.22, fill: { color: BG2 }, line: { color: BG2 } });
-    T(s, t, { x: x + 0.2, y: 6.35, w: (i === 0 ? 3.0 : 8.6) - 0.3, h: 0.45, fontSize: 13, color: NAVY, valign: "middle" });
+    card(s, x, 1.95, 3.83, 4.4, o);
+    s.addShape(pres.shapes.OVAL, { x: x + 0.3, y: 2.2, w: 0.6, h: 0.6, fill: { color: ACC }, line: { color: ACC } });
+    T(s, String(i + 1), { x: x + 0.3, y: 2.2, w: 0.6, h: 0.6, fontSize: 18, bold: true, color: "FFFFFF", align: "center", valign: "middle", fontFace: M });
+    T(s, k, { x: x + 0.3, y: 3.05, w: 3.3, h: 0.3, fontSize: 13, bold: true, color: ACCD });
+    T(s, h, { x: x + 0.3, y: 3.45, w: 3.3, h: 1.6, fontSize: 18, bold: true, color: NAVY });
+    T(s, d, { x: x + 0.3, y: 5.15, w: 3.3, h: 1.0, fontSize: 14, color: TXT });
   });
 }
 
-// 10 experiments
+// 9 결언
 {
-  const s = base(BG, "연구 방법 3", "참값을 확보할 수 있는 세 가지 실험");
-  [["실험 1", "벤치 실험", "참값: 영상 (100 Hz)", ["서보 모터 구동 링크 (정강이 모형)", "사인파 · 보행 궤적 재생", "충돌 · 진동모터로 잡음 통제"]],
-   ["실험 2", "인체 보행 실험", "참값: 영상 (100 Hz)", ["3–5명 · 트레드밀 3속도 × 2분", "영상에서 HS/TO 프레임 판독 → 검출 시점 오차", "동기 LED로 영상–IMU 시간 정렬"]],
-   ["실험 3", "임베디드 실험", "기준: PC 연산 결과", ["동일 raw를 MCU에 재생 (HIL)", "샘플당 연산 시간 · 메모리", "PC 출력과 수치 일치 (H1)"]]].forEach(([k, h, g, l], i) => {
-    const x = 0.7 + i * 4.05;
-    card(s, x, 1.95, 3.83, 4.6);
-    T(s, k, { x: x + 0.3, y: 2.15, w: 2.5, h: 0.3, fontSize: 14, bold: true, color: ACCD, fontFace: M });
-    T(s, h, { x: x + 0.3, y: 2.55, w: 3.3, h: 0.5, fontSize: 24, bold: true, color: NAVY });
-    T(s, g, { x: x + 0.3, y: 3.2, w: 3.3, h: 0.35, fontSize: 14, bold: true, color: BLUE });
-    T(s, l.map((t, j, a) => ({ text: t, options: { bullet: true, breakLine: j < a.length - 1 } })), { x: x + 0.3, y: 3.8, w: 3.3, h: 2.6, fontSize: 16, paraSpaceAfter: 10 });
+  const s = slide(NAVY, "결언", "요약", null, true);
+  ["사전/사후의 본질적 차이는 계산 시점이 아니라 미래 샘플 사용(허용 지연)이다", "허용 지연을 축으로 실시간 · 고정지연 · 사후 필터를 같은 데이터에서 비교한다", "실시간 보행 보조를 위한 필터 선택 기준을 제시한다"].forEach((t, i) => {
+    const y = 1.95 + i * 0.8;
+    T(s, String(i + 1), { x: 0.7, y, w: 0.5, h: 0.6, fontSize: 22, bold: true, color: ORL, fontFace: M });
+    T(s, t, { x: 1.3, y, w: 11.3, h: 0.7, fontSize: 20, color: CREAM });
   });
-}
-
-// 11 metrics
-{
-  const s = base(BG, "연구 방법 4", "평가 지표: 지연과 지연 보정 오차를 함께 본다");
-  [["01", "지연 D (ms)", "출력과 참값 x(t − D)의 상호상관이 최대가 되는 D"], ["02", "지연 보정 RMSE", "D만큼 정렬한 뒤의 오차 → 파형 왜곡 + 잔여 잡음"], ["03", "이벤트 시점 오차", "HS/TO 오차의 평균(보정 가능한 지연)과 표준편차(지터)"], ["04", "연산 비용", "샘플당 µs · 메모리 (Uno vs STM32)"]].forEach(([k, h, d], i) => {
-    const x = 0.7 + (i % 2) * 3.7, y = 1.95 + Math.floor(i / 2) * 2.2;
-    card(s, x, y, 3.5, 2.0);
-    T(s, k, { x: x + 0.25, y: y + 0.15, w: 1, h: 0.3, fontSize: 14, bold: true, color: ACCD, fontFace: M });
-    T(s, h, { x: x + 0.25, y: y + 0.5, w: 3.0, h: 0.4, fontSize: 18, bold: true, color: NAVY });
-    T(s, d, { x: x + 0.25, y: y + 0.95, w: 3.0, h: 1.0, fontSize: 14 });
-  });
-  card(s, 8.2, 1.95, 4.43, 4.2);
-  T(s, "산출물: 필터 계열별 지연–정확도 곡선", { x: 8.4, y: 2.05, w: 4.1, h: 0.35, fontSize: 14, bold: true, color: BLUE });
-  s.addImage({ path: S + "pp_curve.png", x: 8.55, y: 2.5, w: 3.75, h: 2.6 });
-  T(s, "RMSE", { x: 8.45, y: 2.45, w: 0.8, h: 0.3, fontSize: 12, color: MUTE, fontFace: M });
-  T(s, "허용 지연 d →", { x: 10.4, y: 5.1, w: 2.1, h: 0.3, fontSize: 12, color: MUTE, align: "right" });
-  T(s, "사후 필터 기준선 · 도달 최소 지연 d*", { x: 8.4, y: 5.4, w: 4.1, h: 0.6, fontSize: 13, bold: true, color: ACCD });
-  T(s, "통계: 보폭 단위 반복측정 설계 · Friedman 검정 + Wilcoxon 사후검정 (Bonferroni 보정)", { x: 0.7, y: 6.45, w: 11.9, h: 0.35, fontSize: 14, color: MUTE });
-}
-
-// 12 schedule
-{
-  const s = base(NAVY, "향후 계획", "연구 일정 및 기대 효과", true);
-  const wk = [["9주", "측정 시스템 구축"], ["10주", "벤치 실험"], ["11주", "임베디드 실험"], ["12주", "인체 보행 실험"], ["13주", "분석 · 통계"], ["14주", "결과 정리"], ["15주", "기말 발표"]];
-  s.addShape(pres.shapes.LINE, { x: 0.9, y: 2.75, w: 11.5, h: 0, line: { color: "3A4658", width: 3 } });
-  wk.forEach(([w, t], i) => {
-    const cx = 1.6 + i * 1.7;
-    s.addShape(pres.shapes.OVAL, { x: cx - 0.13, y: 2.62, w: 0.26, h: 0.26, fill: { color: "F08A5D" }, line: { color: "F08A5D" } });
-    T(s, w, { x: cx - 0.8, y: 3.0, w: 1.6, h: 0.3, fontSize: 14, bold: true, color: "F08A5D", align: "center", fontFace: M });
-    T(s, t, { x: cx - 0.8, y: 3.4, w: 1.6, h: 0.7, fontSize: 15, color: CREAM, align: "center" });
-  });
-  T(s, "기대 효과", { x: 0.9, y: 4.6, w: 4, h: 0.3, fontSize: 14, bold: true, color: "AEB6C2" });
-  T(s, "허용 지연에 따른 필터 선택 가이드라인\n“d ms가 허용되면, 이 필터를 이 단계에”", { x: 0.9, y: 5.0, w: 11.5, h: 1.2, fontSize: 26, color: CREAM });
-  T(s, "감사합니다", { x: 0.9, y: 6.3, w: 6, h: 0.6, fontSize: 28, bold: true, color: CREAM });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.7, y: 4.55, w: 11.93, h: 1.0, rectRadius: 0.1, fill: { color: "22304A" }, line: { color: "22304A" } });
+  T(s, "조언 요청: 100 Hz 영상 참값의 시간 해상도(±10 ms)가 비교할 지연 차이와 비슷함 → 참값 정밀도를 높일 방법", { x: 0.95, y: 4.55, w: 11.4, h: 1.0, fontSize: 16, color: CREAM, valign: "middle" });
+  T(s, "감사합니다 · 질의응답", { x: 0.7, y: 6.0, w: 9, h: 0.6, fontSize: 26, bold: true, color: CREAM });
 }
 
 pres.writeFile({ fileName: OUT }).then(() => console.log("written", OUT));

@@ -1,7 +1,7 @@
 # 연구 계획서 (최종안): 지연 예산 관점에서 본 하지 IMU 필터링
 
 > 센서 및 액추에이터 (2026-2) 기말 프로젝트
-> 중간발표 원고(10분)는 [`02_midterm_script_10min.md`](02_midterm_script_10min.md)에 있다.
+> 중간발표 원고(10분)는 [`02_midterm_script_5min.md`](02_midterm_script_5min.md)에 있다.
 
 - 국문 제목: **지연 예산(Latency Budget) 관점에서 본 하지 IMU 필터링: 사전·사후·고정지연 필터의 정확도–지연 트레이드오프 분석**
 - 영문 제목: *Filtering Lower-Limb IMU Signals on a Latency Budget: Accuracy–Delay Trade-offs of Pre-, Post-, and Fixed-Lag Filters*
