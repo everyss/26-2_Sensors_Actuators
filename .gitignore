@@ -1,2 +1,8 @@
 __pycache__/
 *.pyc
+# 가상 데이터는 tools/bench_sim.py로 다시 만들 수 있으므로 저장소에 넣지 않는다
+data/sim/
+# 실험 영상은 용량이 커서 저장소 밖에 보관
+*.mp4
+*.mov
+*.avi
